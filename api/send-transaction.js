@@ -16,6 +16,8 @@ export default async function handler(req, res) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          type: req.body.type,   // ✅ kirim type
+          date: req.body.date,   // ✅ kirim date
           from: req.body.from,
           to: req.body.to,
           amount: req.body.amount
@@ -24,6 +26,7 @@ export default async function handler(req, res) {
       const data = await response.json();
       return res.status(200).json(data);
     }
+
 
     // 🔹 Default route ke Apps Script utama
     const response = await fetch("https://script.google.com/macros/s/AKfycbzjIAINuZQ1ds6fTZ3X6IBQ5OGag03_3-pVZ2UDPHJaljUR1GxewYnQayMvR0Z2g4Iq/exec", {
