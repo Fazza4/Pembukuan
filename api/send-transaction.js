@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   try {
     // 🔹 Logika khusus transfer
     if (req.body.type === "transfer") {
-      const response = await fetch("https://script.google.com/macros/s/AKfycbxCk6qKxikaP6Fn-YI17fwsn539_M0d83RX0_Bi6onDAvv14YMnEH-tV0bbPT2FjrQoeQ/exec", {
+      const response = await fetch("https://script.google.com/macros/s/AKfycbzjIAINuZQ1ds6fTZ3X6IBQ5OGag03_3-pVZ2UDPHJaljUR1GxewYnQayMvR0Z2g4Iq/exec", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     }
 
     // 🔹 Default route ke Apps Script utama
-    const response = await fetch("https://script.google.com/macros/s/AKfycbxCk6qKxikaP6Fn-YI17fwsn539_M0d83RX0_Bi6onDAvv14YMnEH-tV0bbPT2FjrQoeQ/exec", {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbzjIAINuZQ1ds6fTZ3X6IBQ5OGag03_3-pVZ2UDPHJaljUR1GxewYnQayMvR0Z2g4Iq/exec", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
