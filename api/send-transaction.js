@@ -1,63 +1,69 @@
 export default async function handler(req, res) {
-  // CORS Allow All
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Handle preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
   try {
-    // Pastikan body sudah diparsing
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    
-    // 🔹 Logika khusus transfer
-    if (req.body.type === "transfer") {
-      const response = await fetch("https://script.google.com/macros/s/AKfycbyDL9wt6-HzHwUoXepDH-91tiwtoPDh1WvmMxk2NfLLiPXgnUAt2TEvcFl-R1zvqn0bhg/exec", {
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyDL9wt6-HzHwUoXepDH-91tiwtoPDh1WvmMxk2NfLLiPXgnUAt2TEvcFl-R1zvqn0bhg/exec";
+
+    if (body.type === "transfer") {
+      const from = (body.from || '').trim();
+      const to = (body.to || '').trim();
+      const amount = Number(body.amount);
+
+      if (!from || !to) {
+        return res.status(400).json({ success: false, message: 'FROM_TO_REQUIRED' });
+      }
+      if (from === to) {
+        return res.status(400).json({ success: false, message: 'FROM_TO_MUST_DIFFER' });
+      }
+      if (!Number.isFinite(amount) || amount <= 0) {
+        return res.status(400).json({ success: false, message: 'INVALID_AMOUNT' });
+      }
+
+      const response = await fetch(GAS_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: req.body.type,   // ✅ kirim type
-          date: req.body.date,   // ✅ kirim date
-          from: req.body.from,
-          to: req.body.to,
-          amount: req.body.amount
-        })
+        body: JSON.stringify(body)
       });
-      const text = await response.text(); // Baca sebagai text dulu
-      let data;
-      try {
-        data = JSON.parse(text); // Coba parse JSON
-      } catch {
-        data = { success: true, message: text }; // Kalau bukan JSON, anggap sukses
-      }
 
-      return res.status(200).json(data);
+      const text = await response.text();
+      let data;
+      try { data = JSON.parse(text); }
+      catch { data = { status: 'success', message: text }; }
+
+      const success = data.success ?? (data.status === 'success');
+      return res.status(200).json({ success, ...data });
     }
 
+    // Default transaksi biasa
+    const amount = Number(body.amount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return res.status(400).json({ success: false, message: 'INVALID_AMOUNT' });
+    }
 
-    // 🔹 Default route ke Apps Script utama
-    const response = await fetch("https://script.google.com/macros/s/AKfycbyDL9wt6-HzHwUoXepDH-91tiwtoPDh1WvmMxk2NfLLiPXgnUAt2TEvcFl-R1zvqn0bhg/exec", {
+    const response = await fetch(GAS_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(req.body)
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
     });
 
-      const text = await response.text(); // Baca sebagai text dulu
-      let data;
-      try {
-        data = JSON.parse(text); // Coba parse JSON
-      } catch {
-        data = { success: true, message: text }; // Kalau bukan JSON, anggap sukses
-      }
+    const text = await response.text();
+    let data;
+    try { data = JSON.parse(text); }
+    catch { data = { status: 'success', message: text }; }
 
-      return res.status(200).json(data);
+    const success = data.success ?? (data.status === 'success');
+    return res.status(200).json({ success, ...data });
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Backend Error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 }
+
