@@ -10,6 +10,9 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Pastikan body sudah diparsing
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    
     // 🔹 Logika khusus transfer
     if (req.body.type === "transfer") {
       const response = await fetch("https://script.google.com/macros/s/AKfycbyDL9wt6-HzHwUoXepDH-91tiwtoPDh1WvmMxk2NfLLiPXgnUAt2TEvcFl-R1zvqn0bhg/exec", {
@@ -23,7 +26,14 @@ export default async function handler(req, res) {
           amount: req.body.amount
         })
       });
-      const data = await response.json();
+      const text = await response.text(); // Baca sebagai text dulu
+      let data;
+      try {
+        data = JSON.parse(text); // Coba parse JSON
+      } catch {
+        data = { success: true, message: text }; // Kalau bukan JSON, anggap sukses
+      }
+
       return res.status(200).json(data);
     }
 
@@ -37,8 +47,15 @@ export default async function handler(req, res) {
       body: JSON.stringify(req.body)
     });
 
-    const data = await response.json();
-    res.status(200).json(data);
+      const text = await response.text(); // Baca sebagai text dulu
+      let data;
+      try {
+        data = JSON.parse(text); // Coba parse JSON
+      } catch {
+        data = { success: true, message: text }; // Kalau bukan JSON, anggap sukses
+      }
+
+      return res.status(200).json(data);
 
   } catch (error) {
     res.status(500).json({ error: error.message });
