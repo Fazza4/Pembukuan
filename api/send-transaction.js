@@ -9,7 +9,7 @@ export default async function handler(req, res) {
 
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyh_WfkgN-Qa0t447u_bU6mwDKiPqbtQkapJOyHKeuTT4loYvLJ7MY5RMzNXpCK20ED7g/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbx2QAriGNxm6u5uA6udoqkOaE4HSYZNkoX3nTgOpxJT6Me5DDaAC4YV_J9czeHqAv7mgw/exec";
 
     if (body.type === "transfer") {
       const from = (body.from || '').trim();
